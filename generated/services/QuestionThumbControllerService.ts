@@ -3,7 +3,6 @@
 /* tslint:disable */
 /* eslint-disable */
 import type { BaseResponse_int_ } from '../models/BaseResponse_int_';
-import type { QuestionThumbAddRequest } from '../models/QuestionThumbAddRequest';
 
 import type { CancelablePromise } from '../core/CancelablePromise';
 import { OpenAPI } from '../core/OpenAPI';
@@ -13,18 +12,19 @@ export class QuestionThumbControllerService {
 
     /**
      * doThumb
-     * @param questionThumbAddRequest questionThumbAddRequest
+     * @param questionId questionId
      * @returns BaseResponse_int_ OK
-     * @returns any Created
      * @throws ApiError
      */
-    public static doThumbUsingPost(
-questionThumbAddRequest: QuestionThumbAddRequest,
-): CancelablePromise<BaseResponse_int_ | any> {
+    public static doThumbUsingGet(
+questionId?: number,
+): CancelablePromise<BaseResponse_int_> {
         return __request(OpenAPI, {
-            method: 'POST',
-            url: '/api/question_thumb/',
-            body: questionThumbAddRequest,
+            method: 'GET',
+            url: '/api/question/thumb/',
+            query: {
+                'questionId': questionId,
+            },
             errors: {
                 401: `Unauthorized`,
                 403: `Forbidden`,

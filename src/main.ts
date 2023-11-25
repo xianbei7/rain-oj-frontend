@@ -7,6 +7,7 @@ import router from "./router";
 import { createPinia } from "pinia";
 import "@/permissions";
 import "@/plugins/axios";
+import "bytemd/dist/index.css";
 
 const pinia = createPinia();
 createApp(App)

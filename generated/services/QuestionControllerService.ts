@@ -3,15 +3,14 @@
 /* tslint:disable */
 /* eslint-disable */
 import type { BaseResponse_boolean_ } from '../models/BaseResponse_boolean_';
-import type { BaseResponse_long_ } from '../models/BaseResponse_long_';
+import type { BaseResponse_DoQuestionVO_ } from '../models/BaseResponse_DoQuestionVO_';
+import type { BaseResponse_List_string_ } from '../models/BaseResponse_List_string_';
 import type { BaseResponse_Page_Question_ } from '../models/BaseResponse_Page_Question_';
 import type { BaseResponse_Page_QuestionVO_ } from '../models/BaseResponse_Page_QuestionVO_';
-import type { BaseResponse_QuestionVO_ } from '../models/BaseResponse_QuestionVO_';
+import type { BaseResponse_Question_ } from '../models/BaseResponse_Question_';
 import type { DeleteRequest } from '../models/DeleteRequest';
-import type { QuestionAddRequest } from '../models/QuestionAddRequest';
-import type { QuestionEditRequest } from '../models/QuestionEditRequest';
 import type { QuestionQueryRequest } from '../models/QuestionQueryRequest';
-import type { QuestionUpdateRequest } from '../models/QuestionUpdateRequest';
+import type { QuestionSaveRequest } from '../models/QuestionSaveRequest';
 
 import type { CancelablePromise } from '../core/CancelablePromise';
 import { OpenAPI } from '../core/OpenAPI';
@@ -21,18 +20,18 @@ export class QuestionControllerService {
 
     /**
      * addQuestion
-     * @param questionAddRequest questionAddRequest
-     * @returns BaseResponse_long_ OK
+     * @param questionSaveRequest questionSaveRequest
+     * @returns BaseResponse_boolean_ OK
      * @returns any Created
      * @throws ApiError
      */
     public static addQuestionUsingPost(
-questionAddRequest: QuestionAddRequest,
-): CancelablePromise<BaseResponse_long_ | any> {
+questionSaveRequest: QuestionSaveRequest,
+): CancelablePromise<BaseResponse_boolean_ | any> {
         return __request(OpenAPI, {
             method: 'POST',
             url: '/api/question/add',
-            body: questionAddRequest,
+            body: questionSaveRequest,
             errors: {
                 401: `Unauthorized`,
                 403: `Forbidden`,
@@ -64,19 +63,37 @@ deleteRequest: DeleteRequest,
     }
 
     /**
-     * editQuestion
-     * @param questionEditRequest questionEditRequest
-     * @returns BaseResponse_boolean_ OK
-     * @returns any Created
+     * getQuestionById
+     * @param id id
+     * @returns BaseResponse_Question_ OK
      * @throws ApiError
      */
-    public static editQuestionUsingPost(
-questionEditRequest: QuestionEditRequest,
-): CancelablePromise<BaseResponse_boolean_ | any> {
+    public static getQuestionByIdUsingGet(
+id?: number,
+): CancelablePromise<BaseResponse_Question_> {
         return __request(OpenAPI, {
-            method: 'POST',
-            url: '/api/question/edit',
-            body: questionEditRequest,
+            method: 'GET',
+            url: '/api/question/get',
+            query: {
+                'id': id,
+            },
+            errors: {
+                401: `Unauthorized`,
+                403: `Forbidden`,
+                404: `Not Found`,
+            },
+        });
+    }
+
+    /**
+     * getQuestionTags
+     * @returns BaseResponse_List_string_ OK
+     * @throws ApiError
+     */
+    public static getQuestionTagsUsingGet(): CancelablePromise<BaseResponse_List_string_> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/question/get/tags',
             errors: {
                 401: `Unauthorized`,
                 403: `Forbidden`,
@@ -88,12 +105,12 @@ questionEditRequest: QuestionEditRequest,
     /**
      * getQuestionVOById
      * @param id id
-     * @returns BaseResponse_QuestionVO_ OK
+     * @returns BaseResponse_DoQuestionVO_ OK
      * @throws ApiError
      */
     public static getQuestionVoByIdUsingGet(
 id?: number,
-): CancelablePromise<BaseResponse_QuestionVO_> {
+): CancelablePromise<BaseResponse_DoQuestionVO_> {
         return __request(OpenAPI, {
             method: 'GET',
             url: '/api/question/get/vo',
@@ -176,18 +193,18 @@ questionQueryRequest: QuestionQueryRequest,
 
     /**
      * updateQuestion
-     * @param questionUpdateRequest questionUpdateRequest
+     * @param questionSaveRequest questionSaveRequest
      * @returns BaseResponse_boolean_ OK
      * @returns any Created
      * @throws ApiError
      */
     public static updateQuestionUsingPost(
-questionUpdateRequest: QuestionUpdateRequest,
+questionSaveRequest: QuestionSaveRequest,
 ): CancelablePromise<BaseResponse_boolean_ | any> {
         return __request(OpenAPI, {
             method: 'POST',
             url: '/api/question/update',
-            body: questionUpdateRequest,
+            body: questionSaveRequest,
             errors: {
                 401: `Unauthorized`,
                 403: `Forbidden`,

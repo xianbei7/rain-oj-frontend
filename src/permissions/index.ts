@@ -14,7 +14,10 @@ router.beforeEach(async (to, from, next) => {
     (to.meta?.permissions as string) ?? PERMISSIONS_ENUM.NOT_LOGIN;
   // 要跳转的页面需要登录
   if (needPermissions !== PERMISSIONS_ENUM.NOT_LOGIN) {
-    if (!userInfo?.userRole) {
+    if (
+      !userInfo?.userRole ||
+      userInfo.userRole === PERMISSIONS_ENUM.NOT_LOGIN
+    ) {
       next(`/user/login?redirect=${to.fullPath}`);
       return;
     }

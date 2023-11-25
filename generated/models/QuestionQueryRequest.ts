@@ -7,9 +7,12 @@ export type QuestionQueryRequest = {
     answer?: string;
     content?: string;
     current?: number;
+    difficulty?: string;
     favourNum?: number;
     id?: number;
+    number?: number;
     pageSize?: number;
+    searchText?: string;
     sortField?: string;
     sortOrder?: string;
     tags?: Array<string>;

@@ -1,7 +1,4 @@
 import PERMISSIONS_ENUM from "@/permissions/permissionsEnum";
-// import { Message } from "@arco-design/web-vue";
-
-// const whiteList = ["/login", "/noAuth"]; // no redirect whitelist
 
 /**
  * 检查权限

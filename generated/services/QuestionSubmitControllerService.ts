@@ -2,6 +2,7 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
+import type { BaseResponse_List_string_ } from '../models/BaseResponse_List_string_';
 import type { BaseResponse_long_ } from '../models/BaseResponse_long_';
 import type { BaseResponse_Page_QuestionSubmitVO_ } from '../models/BaseResponse_Page_QuestionSubmitVO_';
 import type { QuestionSubmitAddRequest } from '../models/QuestionSubmitAddRequest';
@@ -25,8 +26,25 @@ questionSubmitAddRequest: QuestionSubmitAddRequest,
 ): CancelablePromise<BaseResponse_long_ | any> {
         return __request(OpenAPI, {
             method: 'POST',
-            url: '/api/question_submit/',
+            url: '/api/question/submit/',
             body: questionSubmitAddRequest,
+            errors: {
+                401: `Unauthorized`,
+                403: `Forbidden`,
+                404: `Not Found`,
+            },
+        });
+    }
+
+    /**
+     * getQuestionSubmitLanguages
+     * @returns BaseResponse_List_string_ OK
+     * @throws ApiError
+     */
+    public static getQuestionSubmitLanguagesUsingGet(): CancelablePromise<BaseResponse_List_string_> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/question/submit/get/languages',
             errors: {
                 401: `Unauthorized`,
                 403: `Forbidden`,
@@ -47,7 +65,7 @@ questionSubmitQueryRequest: QuestionSubmitQueryRequest,
 ): CancelablePromise<BaseResponse_Page_QuestionSubmitVO_ | any> {
         return __request(OpenAPI, {
             method: 'POST',
-            url: '/api/question_submit/list/page',
+            url: '/api/question/submit/list/page',
             body: questionSubmitQueryRequest,
             errors: {
                 401: `Unauthorized`,

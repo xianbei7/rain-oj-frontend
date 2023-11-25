@@ -107,9 +107,9 @@ const handleSubmit = async ({
         path: "/",
         replace: true,
       });
-      Message.success("欢迎回来！");
+      Message.success(`欢迎回来！${userInfo.userName}`);
     } else {
-      Message.error("登录失败，" + res.message);
+      Message.error(`登录失败，${res.message}`);
     }
   }
 };

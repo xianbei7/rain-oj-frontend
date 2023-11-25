@@ -29,6 +29,26 @@
         </a-input>
       </a-form-item>
       <a-form-item
+        field="userName"
+        :rules="[
+          { required: true, message: '用户名不能为空' },
+          { minLength: 2, message: '用户名最少2位' },
+          { maxLength: 20, message: '用户名至多20位' },
+        ]"
+        :validate-trigger="['change', 'blur', 'input']"
+        hide-label
+      >
+        <a-input
+          size="large"
+          v-model="form.userName"
+          placeholder="请输入用户名（2到20位）"
+        >
+          <template #prefix>
+            <icon-idcard />
+          </template>
+        </a-input>
+      </a-form-item>
+      <a-form-item
         field="userPassword"
         :rules="[
           { required: true, message: '密码不能为空' },
@@ -86,11 +106,12 @@
   </div>
 
   <a-modal v-model:visible="visible" @ok="handleOk" @cancel="handleOk">
-    <template #title>请确认账号！遗忘无法找回</template>
+    <template #title>请确认账号和密码！遗忘无法找回</template>
     <div style="text-align: center">
       <div>
-        您的账号：
+        您的账号和密码：
         <a-tag size="large">{{ form.userAccount }}</a-tag>
+        <a-tag size="large">{{ form.userPassword }}</a-tag>
       </div>
     </div>
   </a-modal>
@@ -110,6 +131,7 @@ const visible = ref(false);
  */
 const form = reactive({
   userAccount: "",
+  userName: "",
   userPassword: "",
   checkPassword: "",
 } as UserRegisterRequest);
@@ -123,7 +145,7 @@ const commonValidate = (value: any, callback: any) => {
 };
 const confirmValidate = (value: any, callback: any) => {
   if (value !== form.userPassword) {
-    callback("输入密码不一致");
+    callback(new Error("输入密码不一致"));
   } else {
     callback();
   }
@@ -135,9 +157,6 @@ const handleOk = () => {
     path: "/user/login",
     replace: true,
   });
-};
-const handleClick = () => {
-  visible.value = true;
 };
 const handleSubmit = async ({
   errors,
@@ -152,7 +171,6 @@ const handleSubmit = async ({
     if (res.code === 0) {
       visible.value = true;
     } else {
-      console.log(res.message);
       Message.error(`注册失败，${res.message}`);
     }
   }
