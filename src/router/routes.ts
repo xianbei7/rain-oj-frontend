@@ -1,16 +1,18 @@
 import { RouteRecordRaw } from "vue-router";
-import NoAuth from "@/views/NoAuth.vue";
 import PERMISSIONS_ENUM from "@/permissions/permissionsEnum";
 import UserLayout from "@/layouts/UserLayout.vue";
-import UserRegisterView from "@/views/user/UserRegisterView.vue";
-import UserLoginView from "@/views/user/UserLoginView.vue";
-import AddQuestionView from "@/views/question/AddQuestionView.vue";
-import ManageQuestionView from "@/views/question/ManageQuestionView.vue";
-import QuestionListView from "@/views/question/QuestionListView.vue";
-import ViewQuestionView from "@/views/question/ViewQuestionView.vue";
-import UserInfoView from "@/views/user/UserInfoView.vue";
+import BasicLayout from "@/layouts/BasicLayout.vue";
 
 export const routes: Array<RouteRecordRaw> = [
+  {
+    path: "/",
+    name: "主页",
+    component: () => import("../views/HomeView.vue"),
+    meta: {
+      hideInMenu: true,
+      layout: BasicLayout,
+    },
+  },
   {
     path: "/user",
     name: "用户",
@@ -19,17 +21,17 @@ export const routes: Array<RouteRecordRaw> = [
       {
         path: "/user/login",
         name: "用户登录",
-        component: UserLoginView,
+        component: () => import("../views/user/UserLoginView.vue"),
       },
       {
-        path: "/user/register:id",
+        path: "/user/register",
         name: "用户注册",
-        component: UserRegisterView,
+        component: () => import("../views/user/UserRegisterView.vue"),
       },
       {
-        path: "/user/info",
+        path: "/user/info/:id",
         name: "用户信息",
-        component: UserInfoView,
+        component: () => import("../views/user/UserInfoView.vue"),
         props: true,
         meta: {
           permissions: PERMISSIONS_ENUM.USER,
@@ -41,14 +43,14 @@ export const routes: Array<RouteRecordRaw> = [
     },
   },
   {
-    path: "/",
+    path: "/question/list",
     name: "题目列表",
-    component: QuestionListView,
+    component: () => import("../views/question/QuestionListView.vue"),
   },
   {
     path: "/question/view/:id",
     name: "在线做题",
-    component: ViewQuestionView,
+    component: () => import("../views/question/ViewQuestionView.vue"),
     props: true,
     meta: {
       permissions: PERMISSIONS_ENUM.USER,
@@ -58,7 +60,7 @@ export const routes: Array<RouteRecordRaw> = [
   {
     path: "/question/add",
     name: "创建题目",
-    component: AddQuestionView,
+    component: () => import("../views/question/AddQuestionView.vue"),
     meta: {
       permissions: PERMISSIONS_ENUM.USER,
     },
@@ -66,7 +68,7 @@ export const routes: Array<RouteRecordRaw> = [
   {
     path: "/question/update",
     name: "更新题目",
-    component: AddQuestionView,
+    component: () => import("../views/question/AddQuestionView.vue"),
     meta: {
       permissions: PERMISSIONS_ENUM.USER,
       hideInMenu: true,
@@ -75,17 +77,30 @@ export const routes: Array<RouteRecordRaw> = [
   {
     path: "/question/manage",
     name: "管理题目",
-    component: ManageQuestionView,
+    component: () => import("../views/question/ManageQuestionView.vue"),
     meta: {
       permissions: PERMISSIONS_ENUM.ADMIN,
     },
   },
   {
     path: "/noAuth",
-    name: "无权限",
-    component: NoAuth,
+    name: "401",
+    component: () => import("../views/error/NoAuth.vue"),
     meta: {
       hideInMenu: true,
     },
+  },
+  {
+    path: "/notFound",
+    name: "404",
+    component: () => import("../views/error/NotFound.vue"),
+    meta: {
+      hideInMenu: true,
+      layout: BasicLayout,
+    },
+  },
+  {
+    path: "/:pathMatch(.*)", // 匹配所有路由
+    redirect: "/notFound",
   },
 ];

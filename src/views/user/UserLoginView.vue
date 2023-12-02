@@ -1,5 +1,5 @@
 <template>
-  <div style="max-width: 500px; margin: 0 auto">
+  <div style="max-width: 400px; margin: 0 auto">
     <h1 style="margin-bottom: 50px; margin-top: 100px">登录账号</h1>
     <a-form
       ref="loginForm"
@@ -74,13 +74,14 @@
 </template>
 <script setup lang="ts">
 import { reactive } from "vue";
-import { useRouter } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { Message } from "@arco-design/web-vue";
 import { ValidatedError } from "@arco-design/web-vue/es/form/interface";
 
 import { useUserInfo } from "@/store/UserInfo";
 import { UserControllerService, UserLoginRequest } from "../../../generated";
 
+const route = useRoute();
 const router = useRouter();
 const userInfo = useUserInfo();
 
@@ -103,8 +104,9 @@ const handleSubmit = async ({
     // 登录成功，跳转到主页
     if (res.code === 0) {
       await userInfo.getLoginUser();
+      const redirect = (route.query.redirect as string) || "/";
       router.push({
-        path: "/",
+        path: redirect,
         replace: true,
       });
       Message.success(`欢迎回来！${userInfo.userName}`);

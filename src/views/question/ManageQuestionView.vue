@@ -48,7 +48,7 @@
 <script setup lang="ts">
 import { onMounted, ref, watchEffect } from "vue";
 import { Question, QuestionControllerService } from "../../../generated";
-import { Message, TableChangeExtra, TableData } from "@arco-design/web-vue";
+import { Message } from "@arco-design/web-vue";
 import { useRouter } from "vue-router";
 
 const router = useRouter();

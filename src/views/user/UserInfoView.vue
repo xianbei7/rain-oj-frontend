@@ -1,53 +1,86 @@
 <template>
-  <div class="header">
-    <a-space :size="8" direction="vertical" align="center">
-      <a-avatar
-        :size="64"
-        :style="{
-          backgroundColor: '#4080ff',
-          cursor: 'pointer',
-        }"
-      >
-        {{ userInfo.userName || "未登录" }}
-      </a-avatar>
-      <a-typography-title :heading="6" style="margin: 0">
-        {{ userInfo.userName }}
-      </a-typography-title>
-      <div class="user-msg">
-        <a-space :size="18">
-          <div>
-            <icon-message />
-            <a-typography-text>{{ userInfo.userProfile }}</a-typography-text>
-          </div>
-        </a-space>
-      </div>
-    </a-space>
-  </div>
-  <!--  <a-card class="general-card" title="提交题目">
-      <a-list :bordered="false">
-        <a-list-item
-          v-for="questionSubmit in questionSubmitList"
-          :key="questionSubmit.id"
-          action-layout="horizontal"
-        >
-          <a-list-item-meta :description="questionSubmit.status as string">
-            <template #avatar>
-              <a-avatar></a-avatar>
+  <a-row :gutter="10" style="width: 1000px; margin: 0 auto">
+    <a-col :span="16">
+      <a-card class="infinite-scroll">
+        <a-tabs size="large" :active-key="tabKey" @change="tabChange" lazy-load>
+          <a-tab-pane key="favour">
+            <template #title>
+              <icon-star-fill />
+              收藏题目
             </template>
-          </a-list-item-meta>
-        </a-list-item>
-      </a-list>
-    </a-card>-->
+            <a-list
+              :max-height="450"
+              :bordered="false"
+              @reach-bottom="fetchData"
+              :scrollbar="scrollbar"
+            >
+              <template #scroll-loading>
+                <div v-if="bottom">已经到底了</div>
+                <a-spin v-else />
+              </template>
+              <a-list-item
+                v-for="favourQuestion in favourQuestionList"
+                :key="favourQuestion.questionId"
+              >
+                <a-list-item-meta
+                  :title="`${favourQuestion.number}-${favourQuestion.title}`"
+                  :description="favourQuestion.title"
+                >
+                </a-list-item-meta>
+                <template #actions>
+                  <span
+                    class="userAction"
+                    key="favour"
+                    @click="onFavourChange(favourQuestion.questionId)"
+                  >
+                    <span v-if="favourQuestion.hasFavour">
+                      <IconStarFill style="color: #ffb400" />
+                    </span>
+                    <span v-else>
+                      <IconStar />
+                    </span>
+                    {{ favourQuestion.favourNum }}
+                  </span>
+                </template>
+              </a-list-item>
+            </a-list>
+          </a-tab-pane>
+          <a-tab-pane key="submit">
+            <template #title>
+              <icon-clock-circle />
+              提交记录
+            </template>
+          </a-tab-pane>
+        </a-tabs>
+      </a-card>
+    </a-col>
+    <a-col :span="8">
+      <a-card hoverable>
+        <template #cover>
+          <div style="margin: 10px auto">
+            <a-avatar :size="50" :style="{ backgroundColor: '#4080ff' }">{{
+              userInfo.userName
+            }}</a-avatar>
+          </div>
+        </template>
+        <a-card-meta :title="userInfo.userName">
+          <template #description>
+            {{ userInfo.userProfile }}
+          </template>
+        </a-card-meta>
+      </a-card>
+    </a-col>
+  </a-row>
 </template>
 
 <script setup lang="ts">
-import { useUserInfo } from "@/store/UserInfo";
-
-const userInfo = useUserInfo();
 import { onMounted, ref } from "vue";
 import {
-  QuestionSubmitControllerService,
+  QuestionFavourControllerService,
+  QuestionFavourVO,
   QuestionSubmitVO,
+  UserControllerService,
+  UserVO,
 } from "../../../generated";
 import { defineProps } from "vue/dist/vue";
 
@@ -56,74 +89,73 @@ interface Props {
 }
 
 const props = defineProps<Props>();
+const bottom = ref(false);
+const scrollbar = ref(true);
+const current = ref(1);
+const pages = ref(0);
+const pageSize = 6;
 const questionSubmitList = ref<QuestionSubmitVO[]>([]);
-const fetchData = async () => {
-  console.log(111);
-  const { data } =
-    await QuestionSubmitControllerService.listQuestionSubmitByPageUsingPost1({
-      userId: props.id as number,
+const favourQuestionList = ref<QuestionFavourVO[]>([]);
+const userInfo = ref<UserVO>({});
+const tabKey = ref("favour");
+
+const tabChange = (vaule: string) => {
+  tabKey.value = vaule;
+};
+const onFavourChange = async (questionId: number) => {
+  await QuestionFavourControllerService.doQuestionFavourUsingGet(questionId);
+  refreshData();
+};
+const refreshData = async () => {
+  const resp =
+    await QuestionFavourControllerService.listFavourQuestionByPageUsingPost({
+      current: 1,
+      pageSize: pageSize * current.value,
+      userId: props.id,
     });
-  questionSubmitList.value = data;
+  if (resp.code === 0) {
+    favourQuestionList.value = resp.data.records;
+  }
+};
+const fetchData = async () => {
+  const resp =
+    await QuestionFavourControllerService.listFavourQuestionByPageUsingPost({
+      current: current.value,
+      pageSize: pageSize,
+      userId: props.id,
+    });
+  if (resp.code === 0) {
+    if (current.value < pages.value) {
+      favourQuestionList.value.push(...resp.data.records);
+      current.value++;
+    } else {
+      bottom.value = true;
+    }
+  }
+};
+const initQuestionFavourList = async () => {
+  const resp =
+    await QuestionFavourControllerService.listFavourQuestionByPageUsingPost({
+      current: 1,
+      pageSize: pageSize,
+      userId: props.id,
+    });
+  if (resp.code === 0) {
+    pages.value = resp.data.pages;
+    favourQuestionList.value.push(...resp.data.records);
+    current.value = 3;
+  }
+};
+const getUserInfo = async () => {
+  const resp = await UserControllerService.getUserVoByIdUsingGet(props.id);
+  if (resp.code === 0) {
+    userInfo.value = resp.data;
+  }
 };
 onMounted(() => {
-  // fetchData();
+  getUserInfo();
+  initQuestionFavourList();
 });
 </script>
 
-<style scoped lang="less">
-.header {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 200px;
-  color: var(--gray-10);
-  border-radius: 4px;
-
-  :deep(.arco-avatar-trigger-icon-button) {
-    color: rgb(var(--arcoblue-6));
-
-    :deep(.arco-icon) {
-      vertical-align: -1px;
-    }
-  }
-
-  .user-msg {
-    .arco-icon {
-      color: rgb(var(--gray-10));
-    }
-
-    .arco-typography {
-      margin-left: 6px;
-    }
-  }
-}
-
-.latest-activity {
-  &-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-}
-
-.general-card :deep(.arco-list-item) {
-  padding-left: 0;
-  border-bottom: none;
-
-  .arco-list-item-meta-content {
-    flex: 1;
-    padding-bottom: 27px;
-    border-bottom: 1px solid var(--color-neutral-3);
-  }
-
-  .arco-list-item-meta-avatar {
-    padding-bottom: 27px;
-  }
-
-  .skeleton-item {
-    margin-top: 10px;
-    padding-bottom: 20px;
-    border-bottom: 1px solid var(--color-neutral-3);
-  }
-}
-</style>
+<style scoped></style>

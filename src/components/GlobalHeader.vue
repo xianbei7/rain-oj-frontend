@@ -7,11 +7,7 @@
           :selected-keys="selectKeys"
           @menu-item-click="doMenuClick"
         >
-          <a-menu-item
-            key="0"
-            :style="{ padding: 0, marginRight: '38px' }"
-            disabled
-          >
+          <a-menu-item key="0">
             <div class="title-bar">
               <img class="logo" src="../assets/logo.svg" />
               <div class="title">雨 OJ</div>
@@ -24,7 +20,7 @@
       </div>
     </a-col>
     <a-col flex="80px">
-      <a-dropdown trigger="click">
+      <a-dropdown v-if="userInfo.userName" trigger="click">
         <a-avatar
           :size="40"
           :style="{
@@ -32,15 +28,9 @@
             cursor: 'pointer',
           }"
         >
-          {{ userInfo.userName || "未登录" }}
+          {{ userInfo.userName }}
         </a-avatar>
         <template #content>
-          <a-doption>
-            <a-space @click="toUserLogin">
-              <icon-import />
-              登录账号
-            </a-space>
-          </a-doption>
           <a-doption>
             <a-space @click="toUserInfo">
               <icon-user />
@@ -61,6 +51,7 @@
           </a-doption>
         </template>
       </a-dropdown>
+      <a-button v-else type="primary" @click="toUserLogin">登录</a-button>
     </a-col>
   </a-row>
   <UpdateUserModal :visible="visible" v-model:visible="visible" />
@@ -95,9 +86,15 @@ router.afterEach((to, from, failure) => {
   selectKeys.value = [to.path];
 });
 const doMenuClick = (key: string) => {
-  router.push({
-    path: key,
-  });
+  if (key === "0") {
+    router.push({
+      path: "/",
+    });
+  } else {
+    router.push({
+      path: key,
+    });
+  }
 };
 const toUserLogin = () => {
   router.push({ path: "/user/login" });
@@ -137,6 +134,11 @@ const handleLogout = async () => {
 };
 </script>
 <style scoped>
+#globalHeader {
+  height: 70px;
+  border-bottom: 1px solid #eee;
+}
+
 .title {
   color: #444;
   margin-left: 16px;

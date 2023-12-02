@@ -3,12 +3,9 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import type { QuestionQueryRequest } from './QuestionQueryRequest';
-
 export type QuestionFavourQueryRequest = {
     current?: number;
     pageSize?: number;
-    questionQueryRequest?: QuestionQueryRequest;
     sortField?: string;
     sortOrder?: string;
     userId?: number;

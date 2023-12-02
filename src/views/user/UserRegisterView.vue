@@ -1,5 +1,5 @@
 <template>
-  <div style="max-width: 500px; margin: 0 auto">
+  <div style="max-width: 400px; margin: 0 auto">
     <h1 style="margin-bottom: 50px; margin-top: 100px">注册账号</h1>
     <a-form
       ref="registerForm"

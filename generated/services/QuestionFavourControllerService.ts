@@ -3,6 +3,7 @@
 /* tslint:disable */
 /* eslint-disable */
 import type { BaseResponse_int_ } from '../models/BaseResponse_int_';
+import type { BaseResponse_Page_QuestionFavourVO_ } from '../models/BaseResponse_Page_QuestionFavourVO_';
 import type { BaseResponse_Page_QuestionVO_ } from '../models/BaseResponse_Page_QuestionVO_';
 import type { QuestionFavourQueryRequest } from '../models/QuestionFavourQueryRequest';
 import type { QuestionQueryRequest } from '../models/QuestionQueryRequest';
@@ -39,13 +40,13 @@ questionId?: number,
     /**
      * listFavourQuestionByPage
      * @param questionFavourQueryRequest questionFavourQueryRequest
-     * @returns BaseResponse_Page_QuestionVO_ OK
+     * @returns BaseResponse_Page_QuestionFavourVO_ OK
      * @returns any Created
      * @throws ApiError
      */
     public static listFavourQuestionByPageUsingPost(
 questionFavourQueryRequest: QuestionFavourQueryRequest,
-): CancelablePromise<BaseResponse_Page_QuestionVO_ | any> {
+): CancelablePromise<BaseResponse_Page_QuestionFavourVO_ | any> {
         return __request(OpenAPI, {
             method: 'POST',
             url: '/api/question/favour/list/page',

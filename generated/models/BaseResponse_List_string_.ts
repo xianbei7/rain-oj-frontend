@@ -3,8 +3,8 @@
 /* tslint:disable */
 /* eslint-disable */
 
-export type JudgeInfo = {
-    memory?: number;
+export type BaseResponse_List_string_ = {
+    code?: number;
+    data?: Array<string>;
     message?: string;
-    time?: number;
 };

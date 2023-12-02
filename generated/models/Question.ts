@@ -19,6 +19,7 @@ export type Question = {
     tags?: string;
     thumbNum?: number;
     title?: string;
+    type?: number;
     updateTime?: string;
     userId?: number;
 };

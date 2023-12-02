@@ -40,6 +40,22 @@
         />
       </a-form-item>
       <a-form-item
+        field="type"
+        label="类型"
+        tooltip="ACM模式是指需要做题者自行接收输入。核心代码是指做题者只需学出核心代码即可。"
+        :rules="[{ required: true, message: '类型不能空' }]"
+        :validate-trigger="('focus', 'blur')"
+      >
+        <a-select
+          class="input-item"
+          size="large"
+          placeholder="请选择类型"
+          :field-names="{ value: 'type', label: 'text' }"
+          :options="options"
+          v-model="form.type"
+        />
+      </a-form-item>
+      <a-form-item
         field="difficulty"
         label="难度"
         :rules="[{ required: true, message: '难度不能空' }]"
@@ -120,53 +136,21 @@
       </a-form-item>
       <a-form-item
         label="判题用例配置"
+        field="judgeCase"
+        align="center"
         :content-flex="false"
         :merge-props="false"
-        align="center"
+        :rules="[{ validator: validateJudgeCase, required: true }]"
       >
-        <a-space
-          v-for="(judgeCaseItem, index) of form.judgeCase"
-          :key="index"
-          no-style
-        >
-          <a-form-item
-            :field="`form.judgeCase[${index}]`"
-            :label="`判题用例-${index + 1}`"
-            :key="index"
-            :rules="[{ validator: validateJudgeCase, required: true }]"
-            :validate-trigger="('focus', 'blur')"
-          >
-            <a-input
-              size="large"
-              style="width: 250px"
-              v-model="judgeCaseItem.input"
-              placeholder="请输入判题用例的输入"
-            />
-            <a-input
-              size="large"
-              style="width: 250px; padding: 0"
-              v-model="judgeCaseItem.output"
-              placeholder="请输入判题用例的输出"
-            >
-              <template #suffix>
-                <a-button
-                  status="danger"
-                  style="width: 50px"
-                  @click="handleDelete(index)"
-                >
-                  删除
-                </a-button>
-              </template>
-            </a-input>
-          </a-form-item>
-        </a-space>
+        <JudgeConfig
+          :judgeCase="form.judgeCase"
+          :handle-delete="handleDelete"
+        />
+        <a-button @click="handleAdd" class="addTest">
+          <icon-plus :style="{ fontSize: '16px', marginRight: '4px' }" />
+          新增测试用例
+        </a-button>
       </a-form-item>
-      <a-button
-        style="margin-left: 400px; max-width: 100px"
-        status="success"
-        @click="handleAdd"
-        >新增测试用例
-      </a-button>
       <a-form-item
         label="内容"
         field="content"
@@ -198,23 +182,35 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
+import { onMounted, reactive, ref } from "vue";
 import MdEditor from "@/components/MdEditor.vue";
 import { QuestionControllerService } from "../../../generated";
 import { Message } from "@arco-design/web-vue";
 import { useRoute, useRouter } from "vue-router";
 import { ValidatedError } from "@arco-design/web-vue/es/form/interface";
+import JudgeConfig from "@/components/JudgeConfig.vue";
+
+interface judgeCase {
+  input: string;
+  output: string;
+}
 
 const router = useRouter();
 const route = useRoute();
 const updatePage = route.path.includes("update");
 const tags = ref([]);
 const word = ref("");
+const options = reactive([
+  { text: "ACM模式", type: "acm" },
+  { text: "核心代码模式", type: "core" },
+  { text: "SQL", type: "sql" },
+]);
 let form = ref({
   title: "",
   number: 0,
   tags: [],
-  difficulty: "",
+  type: "acm",
+  difficulty: "简单",
   content: "",
   answer: "",
   judgeConfig: {
@@ -281,13 +277,11 @@ const handleAdd = () => {
     });
   }
 };
-const handleDelete = (index: number) => {
-  if (form.value.judgeCase) {
-    form.value.judgeCase.splice(index, 1);
-  }
+const handleDelete = (record: judgeCase) => {
+  form.value.judgeCase.splice(record, 1);
 };
 const validateJudgeCase = (value: any, callback: any) => {
-  if (value) {
+  if (value.some((item: judgeCase) => !item.input || !item.output)) {
     callback("判题用例不能为空");
   } else {
     callback();
@@ -341,6 +335,13 @@ onMounted(() => {
 .input-item-judge {
   min-width: 300px;
   margin-left: 80px;
+}
+
+.addTest {
+  width: 100%;
+  color: var(--color-text-2);
+  background-color: var(--color-fill-2);
+  border: 2px dashed var(--color-neutral-3);
 }
 
 .arco-select-view-multiple {
