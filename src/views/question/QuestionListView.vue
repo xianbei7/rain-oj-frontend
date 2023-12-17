@@ -35,13 +35,15 @@
     :pagination="{
       showTotal: true,
       showPageSize: true,
-      simple: true,
+      pageSizeOptions: [5, 10, 20],
       pageSize: searchParams.pageSize,
       current: searchParams.current,
       total: total,
+      simple: true,
     }"
-    @page-change="doPageChange"
-    @page-size-change="doPageSizeChange"
+    @sorter-change="handleSortChange"
+    @page-change="handlePageChange"
+    @page-size-change="handlePageSizeChange"
   >
     <template #title="{ record }">
       <a-link :href="`/question/view/${record.id}`" icon
@@ -50,9 +52,7 @@
     </template>
 
     <template #difficulty="{ record }">
-      <a-tag :color="showColor(record.difficulty)" bordered
-        >{{ record.difficulty }}
-      </a-tag>
+      <difficulty-tag :key="record.id" :difficulty="record.difficulty" />
     </template>
 
     <template #tags="{ record }">
@@ -69,9 +69,9 @@
       {{ `${record.acceptedRate}%(${record.acceptedNum}/${record.submitNum})` }}
     </template>
     <template #createTime="{ record }">
-      {{ record.createTime }}
+      {{ moment(record.createTime).format("YY年M月D日H点") }}
     </template>
-    <template #hasThumb="{ record }">
+    <template #thumb="{ record }">
       <span class="userAction" key="thumb" @click="onThumbChange(record.id)">
         <span v-if="record.hasThumb">
           <IconThumbUpFill style="color: #4080ff" />
@@ -80,8 +80,9 @@
           <IconThumbUp />
         </span>
       </span>
+      {{ record.thumbNum }}
     </template>
-    <template #hasFavour="{ record }">
+    <template #favour="{ record }">
       <span class="userAction" key="favour" @click="onFavourChange(record.id)">
         <span v-if="record.hasFavour">
           <IconStarFill style="color: #ffb400" />
@@ -90,6 +91,7 @@
           <IconStar />
         </span>
       </span>
+      {{ record.favourNum }}
     </template>
   </a-table>
 </template>
@@ -103,6 +105,9 @@ import {
   QuestionVO,
 } from "../../../generated";
 import { Message } from "@arco-design/web-vue";
+import { TableData } from "@arco-design/web-vue/es/table/interface";
+import DifficultyTag from "@/components/DifficultyTag";
+import moment from "moment";
 
 const tableRef = ref();
 const data = ref([]);
@@ -114,6 +119,8 @@ const searchParams = ref({
   searchText: "",
   pageSize: 10,
   current: 1,
+  sortField: "",
+  sortOrder: "",
 });
 const columns = [
   {
@@ -128,14 +135,12 @@ const columns = [
     title: "标题",
     align: "center",
     slotName: "title",
-    sortable: {
-      sortDirections: ["ascend", "descend"],
-    },
   },
   {
     title: "难度",
     align: "center",
     slotName: "difficulty",
+    dataIndex: "difficulty",
     sortable: {
       sortDirections: ["ascend", "descend"],
     },
@@ -148,29 +153,39 @@ const columns = [
   {
     title: "通过率",
     align: "center",
-    dataIndex: "acceptedRate",
     slotName: "acceptedRate",
-    sortable: {
-      sortDirections: ["ascend", "descend"],
-    },
   },
   {
     title: "创建时间",
     align: "center",
+    dataIndex: "createTime",
     slotName: "createTime",
     sortable: {
       sortDirections: ["ascend", "descend"],
+      sorter: (
+        a: TableData,
+        b: TableData,
+        extra: { dataIndex: string; direction: "ascend" | "descend" }
+      ) => dateSorter(a.createTime, b.createTime, extra.direction),
     },
   },
   {
     title: "点赞",
     align: "center",
-    slotName: "hasThumb",
+    dataIndex: "thumbNum",
+    slotName: "thumb",
+    sortable: {
+      sortDirections: ["descend"],
+    },
   },
   {
     title: "收藏",
     align: "center",
-    slotName: "hasFavour",
+    dataIndex: "favourNum",
+    slotName: "favour",
+    sortable: {
+      sortDirections: ["descend"],
+    },
   },
 ];
 const onThumbChange = async (questionId: number) => {
@@ -181,28 +196,40 @@ const onFavourChange = async (questionId: number) => {
   await QuestionFavourControllerService.doQuestionFavourUsingGet(questionId);
   loadData();
 };
-const showColor = (difficulty: string) => {
-  if (difficulty === "简单") {
-    return "green";
-  } else if (difficulty === "中等") {
-    return "orange";
-  } else if (difficulty === "困难") {
-    return "red";
-  }
-};
 const doSearch = () => {
   searchParams.value = {
     ...searchParams.value,
     current: 1,
   };
 };
-const doPageChange = (page: number) => {
+const dateSorter = (
+  a: string,
+  b: string,
+  direction: "ascend" | "descend"
+): number => {
+  const dateA = new Date(a);
+  const dateB = new Date(b);
+  if (direction === "ascend") {
+    return dateA.getTime() - dateB.getTime();
+  } else {
+    return dateB.getTime() - dateA.getTime();
+  }
+};
+const handleSortChange = (dataIndex: string, direction: string) => {
+  searchParams.value = {
+    ...searchParams.value,
+    sortField: dataIndex,
+    sortOrder: direction,
+  };
+  console.log(searchParams.value);
+};
+const handlePageChange = (page: number) => {
   searchParams.value = {
     ...searchParams.value,
     current: page,
   };
 };
-const doPageSizeChange = (size: number) => {
+const handlePageSizeChange = (size: number) => {
   searchParams.value = {
     ...searchParams.value,
     pageSize: size,

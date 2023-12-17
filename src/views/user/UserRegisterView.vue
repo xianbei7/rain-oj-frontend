@@ -29,6 +29,26 @@
         </a-input>
       </a-form-item>
       <a-form-item
+        field="userNumber"
+        :rules="[
+          { required: true, message: '学号不能为空' },
+          { length: 10, message: '学号必须10位' },
+          { validator: numberValidate, required: true },
+        ]"
+        :validate-trigger="['change', 'blur', 'input']"
+        hide-label
+      >
+        <a-input
+          size="large"
+          v-model="form.userNumber"
+          placeholder="请输入学号（10位，只允许是数字）"
+        >
+          <template #prefix>
+            <icon-at />
+          </template>
+        </a-input>
+      </a-form-item>
+      <a-form-item
         field="userName"
         :rules="[
           { required: true, message: '用户名不能为空' },
@@ -118,23 +138,33 @@
 </template>
 <script setup lang="ts">
 import { reactive, ref } from "vue";
-import { useRouter } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { Message } from "@arco-design/web-vue";
 import { ValidatedError } from "@arco-design/web-vue/es/form/interface";
 
 import { UserControllerService, UserRegisterRequest } from "../../../generated";
 
+const route = useRoute();
 const router = useRouter();
 const visible = ref(false);
 /**
  * 表单信息
  */
 const form = reactive({
+  userNumber: "",
   userAccount: "",
   userName: "",
   userPassword: "",
   checkPassword: "",
 } as UserRegisterRequest);
+const numberValidate = (value: any, callback: any) => {
+  const regex = /^[0-9]+$/; // 只允许数字
+  if (!regex.test(value)) {
+    callback(new Error("学号只允许是数字"));
+  } else {
+    callback();
+  }
+};
 const commonValidate = (value: any, callback: any) => {
   const regex = /^[a-zA-Z0-9._]+$/; // 只允许字母、数字、下划线
   if (!regex.test(value)) {
@@ -153,8 +183,9 @@ const confirmValidate = (value: any, callback: any) => {
 const handleOk = () => {
   visible.value = false;
   Message.success("注册成功！");
+  const redirect = (route.query.redirect as string) || "/";
   router.push({
-    path: "/user/login",
+    path: `/user/login?redirect=${redirect}`,
     replace: true,
   });
 };

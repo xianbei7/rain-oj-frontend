@@ -116,7 +116,8 @@ const handleSubmit = async ({
   }
 };
 const onRegister = () => {
-  router.push("/user/register");
+  const redirect = (route.query.redirect as string) || "/";
+  router.push(`/user/register?redirect=${redirect}`);
 };
 </script>
 

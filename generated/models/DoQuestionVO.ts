@@ -3,16 +3,17 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import type { JudgeConfig } from './JudgeConfig';
+import type { JudgeConfig } from "./JudgeConfig";
 
 export type DoQuestionVO = {
-    content?: string;
-    favourNum?: number;
-    hasFavour?: boolean;
-    hasThumb?: boolean;
-    id?: number;
-    judgeConfig?: JudgeConfig;
-    tags?: Array<string>;
-    thumbNum?: number;
-    title?: string;
+  content?: string;
+  favourNum?: number;
+  hasFavour?: boolean;
+  hasThumb?: boolean;
+  id?: number;
+  judgeConfig?: JudgeConfig;
+  tags?: Array<string>;
+  thumbNum?: number;
+  title?: string;
+  type?: string;
 };

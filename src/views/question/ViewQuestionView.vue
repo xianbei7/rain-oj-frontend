@@ -5,115 +5,136 @@
       style="min-width: 335px; width: 50vw"
       v-model:width="resizeBoxWidth"
     >
-      <div id="leftPart">
-        <a-spin dot :loading="isLoad" style="width: 100%">
-          <a-card>
-            <a-scrollbar style="height: calc(100vh - 100px); overflow: auto">
-              <a-tabs
-                v-model:activeKey="activeKey"
-                default-active-key="question"
-              >
-                <a-tab-pane key="question" title="题目">
-                  <a-card v-if="question" :title="question.title">
-                    <MdViewer :value="question.content || ''" />
-                    <a-descriptions
-                      style="margin-top: 20px"
-                      size="small"
-                      :column="{ xs: 1, md: 2, lg: 3 }"
-                    >
-                      <a-descriptions-item label="时间限制">
-                        <a-tag>
-                          {{ question.judgeConfig?.timeLimit ?? 0 }}ms
-                        </a-tag>
-                      </a-descriptions-item>
-                      <a-descriptions-item label="内存限制">
-                        <a-tag>
-                          {{ question.judgeConfig?.memoryLimit ?? 0 }}KB
-                        </a-tag>
-                      </a-descriptions-item>
-                      <a-descriptions-item label="堆栈限制">
-                        <a-tag>
-                          {{ question.judgeConfig?.stackLimit ?? 0 }}KB
-                        </a-tag>
-                      </a-descriptions-item>
-                    </a-descriptions>
-                    <template #extra>
+      <div class="leftPart">
+        <a-card id="leftPartCard">
+          <a-scrollbar
+            style="height: calc(100vh - 100px); overflow: auto; padding: 0 20px"
+          >
+            <a-tabs
+              v-model:activeKey="activeKey"
+              default-active-key="question"
+              style="max-width: 700px"
+            >
+              <a-tab-pane key="question" title="题目">
+                <a-card v-if="question" :title="question.title">
+                  <MdViewer :value="question.content || ''" />
+                  <a-descriptions
+                    style="margin-top: 20px"
+                    size="small"
+                    :column="{ xs: 1, md: 2, lg: 3 }"
+                  >
+                    <a-descriptions-item label="时间限制">
+                      <a-tag>
+                        {{ question.judgeConfig?.timeLimit ?? 0 }}ms
+                      </a-tag>
+                    </a-descriptions-item>
+                    <a-descriptions-item label="内存限制">
+                      <a-tag>
+                        {{ question.judgeConfig?.memoryLimit ?? 0 }}KB
+                      </a-tag>
+                    </a-descriptions-item>
+                    <a-descriptions-item label="堆栈限制">
+                      <a-tag>
+                        {{ question.judgeConfig?.stackLimit ?? 0 }}KB
+                      </a-tag>
+                    </a-descriptions-item>
+                  </a-descriptions>
+                  <template #extra>
+                    <a-space>
+                      <span
+                        class="userAction"
+                        key="thumb"
+                        @click="onThumbChange"
+                      >
+                        <span v-if="question.hasThumb">
+                          <IconThumbUpFill style="color: #4080ff" />
+                        </span>
+                        <span v-else>
+                          <IconThumbUp />
+                        </span>
+                        {{ question.thumbNum }}
+                      </span>
+                      <span
+                        class="userAction"
+                        key="favour"
+                        @click="onFavourChange"
+                      >
+                        <span v-if="question.hasFavour">
+                          <IconStarFill style="color: #ffb400" />
+                        </span>
+                        <span v-else>
+                          <IconStar />
+                        </span>
+                      </span>
+                      {{ question.favourNum }}
                       <a-space>
-                        <span
-                          class="userAction"
-                          key="thumb"
-                          @click="onThumbChange"
-                        >
-                          <span v-if="question.hasThumb">
-                            <IconThumbUpFill style="color: #4080ff" />
-                          </span>
-                          <span v-else>
-                            <IconThumbUp />
-                          </span>
-                          {{ question.thumbNum }}
-                        </span>
-                        <span
-                          class="userAction"
-                          key="favour"
-                          @click="onFavourChange"
-                        >
-                          <span v-if="question.hasFavour">
-                            <IconStarFill style="color: #ffb400" />
-                          </span>
-                          <span v-else>
-                            <IconStar />
-                          </span>
-                          {{ question.favourNum }}
-                        </span>
-                        <a-space>
-                          <a-tag
-                            v-for="(tag, index) of question.tags"
-                            :key="index"
-                            color="blue"
-                            bordered
-                            >{{ tag }}
-                          </a-tag>
-                        </a-space>
+                        <a-tag
+                          v-for="(tag, index) of question.tags"
+                          :key="index"
+                          color="blue"
+                          bordered
+                          >{{ tag }}
+                        </a-tag>
                       </a-space>
-                    </template>
-                  </a-card>
-                </a-tab-pane>
-                <a-tab-pane key="comment" title="评论" disabled
-                  >评论区
-                </a-tab-pane>
-                <a-tab-pane key="answer" title="题解">
-                  <!-- <ProblemSolve /> -->
-                </a-tab-pane>
-                <a-tab-pane key="submit" title="提交记录"></a-tab-pane>
-              </a-tabs>
-            </a-scrollbar>
-          </a-card>
-        </a-spin>
+                    </a-space>
+                  </template>
+                </a-card>
+              </a-tab-pane>
+              <a-tab-pane key="submit" title="提交记录">
+                <QuestionSubmitRecords
+                  ref="questionSubmitRecords"
+                  :question-id="props.id"
+                  @change:show-detail="showQuestionSubmitDetail"
+                />
+              </a-tab-pane>
+              <a-tab-pane key="answer" title="题解" disabled>
+                <!-- <ProblemSolve /> -->
+              </a-tab-pane>
+            </a-tabs>
+          </a-scrollbar>
+        </a-card>
       </div>
     </a-resize-box>
-    <div id="rightPart" :style="{ width: codeWidth + 'px' }">
-      <div class="code" v-if="!isRecordShow">
-        <a-form :model="form" layout="inline" auto-label-width="false">
-          <a-form-item
-            field="language"
-            style="min-width: 240px; padding-left: 16px"
-          >
-            <a-popover title="温馨提示" position="right">
-              <a-select
-                v-model="form.language"
-                style="width: 200px"
-                placeholder="选择编程语言"
-              >
-                <a-option v-for="language in languages" :key="language">
-                  {{ language }}
-                </a-option>
-              </a-select>
-              <template #content>
-                编程语言修改会导致内容清空，请谨慎切换！
-              </template>
-            </a-popover>
-          </a-form-item>
-        </a-form>
+    <div class="rightPart" :style="{ width: codeWidth + 'px' }">
+      <div class="code" v-if="!isDetailShow">
+        <a-space direction="horizontal" style="margin-bottom: 10px">
+          <a-popover title="温馨提示" position="top">
+            <a-select
+              v-model="form.language"
+              style="width: 200px"
+              placeholder="选择编程语言"
+            >
+              <a-option v-for="language in languages" :key="language">
+                {{ language }}
+              </a-option>
+            </a-select>
+            <template #content>
+              编程语言切换后，会导致代码重置，请谨慎切换！
+            </template>
+          </a-popover>
+          <a-popover position="bottom">
+            <a-button type="text">
+              <span class="tips-dots"></span>
+              <span style="color: #999">{{ question?.type }}</span>
+            </a-button>
+            <template #content>
+              <div class="tipsTitle">
+                {{ question?.type }}
+                <span>
+                  <icon-check-circle-fill
+                    :style="{
+                      fontSize: '12px',
+                      color: '#065ACC',
+                    }"
+                  />
+                </span>
+              </div>
+              <div class="tipsDesc">
+                请通过代码实现题目，过程中的输入输出处理方式请参考题目输入输出描述
+              </div>
+            </template>
+          </a-popover>
+        </a-space>
         <CodeEditor
           :value="form.code as string"
           :language="form.language"
@@ -122,71 +143,54 @@
           :code-template="codeTemplate"
           id="codeEditor"
         />
-        <a-popconfirm
-          content="确认是否提交？提交后不可修改"
-          position="top"
-          type="warning"
-          @ok="doSubmit"
+        <a-resize-box
+          :directions="['top']"
+          :style="{ minHeight: minHeight + 'px', maxHeight: maxHeight + 'px' }"
+          v-model:height="resizeBoxHeight"
         >
-          <a-button
-            type="primary"
-            shape="round"
-            style="min-width: 200px; margin: 0 auto"
-          >
-            提交代码
-          </a-button>
-        </a-popconfirm>
-        <!--        <a-resize-box
-                  :directions="['top']"
-                  :style="{ minHeight: minHeight + 'px', maxHeight: maxHeight + 'px' }"
-                  v-model:height="resizeBoxHeight"
-                >
-                  <CodeCollapsePanels
-                    :result-data="resultData"
-                    :do-submit="doSubmit"
-                    :waiting="waiting"
-                    :do-run="doRun"
-                    :resize-box-height="resizeBoxHeight"
-                    :max-resize-box-height="maxHeight"
-                    ref="controlRef"
-                  />
-                </a-resize-box>-->
+          <CodeCollapsePanels
+            :result-data="resultData"
+            :do-submit="doSubmit"
+            :waiting="waiting"
+            :do-run="doRun"
+            :resize-box-height="resizeBoxHeight"
+            :max-resize-box-height="maxHeight"
+            @update:height="(height) => (resizeBoxHeight = height)"
+            ref="controlRef"
+          />
+        </a-resize-box>
       </div>
-      <!--      <RecordDetail
-              :record-content="recordData"
-              :close-record="closeRecord"
-              v-if="isRecordShow"
-            />-->
+      <RecordDetail
+        :question-submit-detail="questionSubmitDetail"
+        :close-record="closeRecord"
+        v-if="isDetailShow"
+      />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import {
-  onMounted,
-  ref,
-  withDefaults,
-  defineProps,
-  watchEffect,
-  watch,
-} from "vue";
+import { defineProps, onMounted, ref, watch, watchEffect } from "vue";
 import message from "@arco-design/web-vue/es/message";
 import CodeEditor from "@/components/CodeEditor.vue";
 import MdViewer from "@/components/MdViewer.vue";
 import {
+  DoQuestionVO,
   QuestionControllerService,
   QuestionFavourControllerService,
   QuestionSubmitAddRequest,
   QuestionSubmitControllerService,
   QuestionTemplateControllerService,
   QuestionThumbControllerService,
-  QuestionVO,
+  ViewQuestionSubmitVO,
 } from "../../../generated";
 import { Message } from "@arco-design/web-vue";
-import CodeCollapsePanels from "@/components/CodeCollapsePanels.vue";
+import CodeCollapsePanels from "@/components/viewQuestion/CodeCollapsePanels.vue";
+import QuestionSubmitRecords from "@/components/viewQuestion/QuestionSubmitRecords.vue";
+import RecordDetail from "@/components/viewQuestion/RecordDetail.vue";
 
 interface Props {
-  id: string;
+  id: number;
 }
 
 interface RunContent {
@@ -195,21 +199,20 @@ interface RunContent {
   activeKey: string;
 }
 
-const props = withDefaults(defineProps<Props>(), {
-  id: () => "",
-});
+const props = defineProps<Props>();
 const codeTemplate = ref<string>("");
+const questionSubmitRecords = ref<any>();
 const languages = ref([]);
-const isLoad = ref(false);
-const isRecordShow = ref(false);
+const isDetailShow = ref(false);
 const waiting = ref(false);
-const resizeBoxWidth = ref(600);
+const resizeBoxWidth = ref(750);
 const codeWidth = ref(0);
-const resizeBoxHeight = ref(55);
-const minHeight = ref(55);
+const resizeBoxHeight = ref(30);
+const minHeight = ref(30);
 const maxHeight = ref(800);
 const activeKey = ref("question");
-const question = ref<QuestionVO>();
+const question = ref<DoQuestionVO>();
+const questionSubmitDetail = ref<ViewQuestionSubmitVO>();
 const resultData = ref({
   result: "",
   message: "",
@@ -217,7 +220,7 @@ const resultData = ref({
   memory: 0,
 });
 const form = ref<QuestionSubmitAddRequest>({
-  language: "",
+  language: "java",
   code: "",
 });
 watchEffect(() => {
@@ -230,32 +233,16 @@ watch(
     loadCodeTemplate();
   }
 );
-/*const recordDetail = (rowData: any) => {
-  recordData.value = rowData;
-  isRecordShow.value = true;
-};*/
-
 const closeRecord = () => {
-  isRecordShow.value = false;
+  isDetailShow.value = false;
+};
+const showQuestionSubmitDetail = (record: ViewQuestionSubmitVO) => {
+  questionSubmitDetail.value = record;
+  isDetailShow.value = true;
 };
 const loadQuestionData = async () => {
-  if (activeKey.value !== "question") {
-    return;
-  }
-  isLoad.value = true;
   const res = await QuestionControllerService.getQuestionVoByIdUsingGet(
-    props.id as any
-  );
-  if (res.code === 0) {
-    question.value = res.data;
-  } else {
-    Message.error("加载失败" + res.message);
-  }
-  isLoad.value = false;
-};
-const loadData = async () => {
-  const res = await QuestionControllerService.getQuestionVoByIdUsingGet(
-    props.id as any
+    props.id
   );
   if (res.code === 0) {
     question.value = res.data;
@@ -266,13 +253,13 @@ const loadData = async () => {
 
 const onThumbChange = async () => {
   await QuestionThumbControllerService.doThumbUsingGet(question.value?.id);
-  loadData();
+  loadQuestionData();
 };
 const onFavourChange = async () => {
   await QuestionFavourControllerService.doQuestionFavourUsingGet(
     question.value?.id
   );
-  loadData();
+  loadQuestionData();
 };
 
 const doSubmit = async () => {
@@ -287,9 +274,8 @@ const doSubmit = async () => {
   if (res.code === 0) {
     Message.success("提交成功");
     resultData.value = res.data;
-    if (activeKey.value === "submit") {
-      // await loadSubmitData();
-    }
+    activeKey.value = "submit";
+    questionSubmitRecords.value.loadData();
   } else {
     Message.error("提交失败" + res.message);
     resultData.value = res.data;
@@ -336,7 +322,7 @@ const loadCodeTemplate = async () => {
   const resp =
     await QuestionTemplateControllerService.getQuestionTemplateUsingGet(
       form.value.language,
-      props.id as any
+      props.id as never
     );
   if (resp.code === 0) {
     codeTemplate.value = resp.data;
@@ -359,40 +345,36 @@ window.addEventListener("resize", () => {
   maxHeight.value = window.innerHeight - 180;
 });
 onMounted(() => {
-  loadData();
+  loadQuestionData();
   loadLanguages();
   loadCodeTemplate();
 });
 </script>
-<style scoped>
+<style>
 #viewQuestionView {
   width: 100%;
   display: flex;
+  height: calc(90vh - 60px);
 }
 
 #viewQuestionView .arco-space-horizontal .arco-space-item {
   margin-bottom: 0 !important;
 }
 
-#description {
-  margin-right: 10px;
-}
-
-#leftPart {
+#viewQuestionView .leftPart {
   margin-right: 10px;
   flex: 1;
 }
 
-#rightPart {
-  height: calc(100vh - 70px);
+#viewQuestionView .rightPart {
+  height: 100%;
   min-width: 335px;
   padding-left: 10px;
   flex: 1;
-  /* width: 50vw; */
 }
 
 #codeEditor {
-  flex: 1 1 0%;
+  flex: 1 1 0;
   overflow: hidden;
 }
 
@@ -404,6 +386,10 @@ onMounted(() => {
   border-radius: 2px;
 }
 
+#leftPartCard {
+  padding: 0;
+}
+
 .arco-collapse-item-header {
   padding-top: 4px;
   padding-bottom: 4px;
@@ -411,10 +397,6 @@ onMounted(() => {
 
 #CollapsePanels {
   width: 100%;
-}
-
-:deep(#CollapsePanels .arco-card-size-medium .arco-card-body) {
-  padding: 0;
 }
 
 :deep(.arco-radio-label) {
@@ -434,12 +416,6 @@ onMounted(() => {
 .runInfo {
   display: inline-block;
   margin: 0;
-}
-
-.selectForm {
-  display: flex;
-  justify-content: space-between;
-  padding-top: 10px;
 }
 
 .tips-dots {
@@ -466,19 +442,5 @@ onMounted(() => {
   font-size: 12px;
   line-height: 21px;
   margin-top: 4px;
-}
-
-.setting {
-  padding: 5px;
-  cursor: pointer;
-}
-
-.setting:hover {
-  background-color: #000a200d;
-}
-
-.settingIcon {
-  font-size: 16px;
-  color: var(--color-text-1);
 }
 </style>

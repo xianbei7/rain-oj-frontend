@@ -6,17 +6,18 @@
     :pagination="{
       showTotal: true,
       showPageSize: true,
+      pageSizeOptions: [5, 10, 20],
       pageSize: searchParams.pageSize,
       current: searchParams.current,
       total: total,
+      simple: true,
     }"
-    @page-change="doPageChange"
-    @page-size-change="doPageSizeChange"
+    @sorter-change="handleSortChange"
+    @page-change="handlePageChange"
+    @page-size-change="handlePageSizeChange"
   >
     <template #difficulty="{ record }">
-      <a-tag :color="showColor(record.difficulty)" bordered
-        >{{ record.difficulty }}
-      </a-tag>
+      <difficulty-tag :key="record.id" :difficulty="record.difficulty" />
     </template>
 
     <template #tags="{ record }">
@@ -29,16 +30,25 @@
         >{{ tag }}
       </a-tag>
     </template>
+    <template #createTime="{ record }">
+      {{ moment(record.createTime).format("YY年M月D日H点") }}
+    </template>
     <template #optional="{ record }">
       <a-space>
-        <a-button type="primary" @click="doUpdate(record)">修改</a-button>
+        <a-button @click="doUpdate(record)">
+          <icon-edit />
+        </a-button>
         <a-popconfirm
           content="确认是否删除？"
           position="tr"
           type="error"
           @ok="doDelete(record)"
         >
-          <a-button status="danger">删除</a-button>
+          <a-button status="danger">
+            <template #icon>
+              <icon-delete />
+            </template>
+          </a-button>
         </a-popconfirm>
       </a-space>
     </template>
@@ -50,6 +60,9 @@ import { onMounted, ref, watchEffect } from "vue";
 import { Question, QuestionControllerService } from "../../../generated";
 import { Message } from "@arco-design/web-vue";
 import { useRouter } from "vue-router";
+import DifficultyTag from "@/components/DifficultyTag";
+import moment from "moment";
+import { TableData } from "@arco-design/web-vue/es/table/interface";
 
 const router = useRouter();
 const tableRef = ref();
@@ -61,7 +74,6 @@ const searchParams = ref({
   sortField: "",
   sortOrder: "",
 });
-// 标签、难度去掉
 const columns = [
   {
     title: "编号",
@@ -78,6 +90,7 @@ const columns = [
   {
     title: "难度",
     align: "center",
+    dataIndex: "difficulty",
     slotName: "difficulty",
     sortable: {
       sortDirections: ["ascend", "descend"],
@@ -129,8 +142,14 @@ const columns = [
     title: "创建时间",
     align: "center",
     dataIndex: "createTime",
+    slotName: "createTime",
     sortable: {
       sortDirections: ["ascend", "descend"],
+      sorter: (
+        a: TableData,
+        b: TableData,
+        extra: { dataIndex: string; direction: "ascend" | "descend" }
+      ) => dateSorter(a.createTime, b.createTime, extra.direction),
     },
   },
   {
@@ -139,17 +158,37 @@ const columns = [
     slotName: "optional",
   },
 ];
-const doPageChange = (page: number) => {
+const handleSortChange = (dataIndex: string, direction: string) => {
+  searchParams.value = {
+    ...searchParams.value,
+    sortField: dataIndex,
+    sortOrder: direction,
+  };
+};
+const handlePageChange = (page: number) => {
   searchParams.value = {
     ...searchParams.value,
     current: page,
   };
 };
-const doPageSizeChange = (size: number) => {
+const handlePageSizeChange = (size: number) => {
   searchParams.value = {
     ...searchParams.value,
     pageSize: size,
   };
+};
+const dateSorter = (
+  a: string,
+  b: string,
+  direction: "ascend" | "descend"
+): number => {
+  const dateA = new Date(a);
+  const dateB = new Date(b);
+  if (direction === "ascend") {
+    return dateA.getTime() - dateB.getTime();
+  } else {
+    return dateB.getTime() - dateA.getTime();
+  }
 };
 const doDelete = async (question: Question) => {
   const resp = await QuestionControllerService.deleteQuestionUsingPost({
@@ -179,15 +218,6 @@ const loadData = async () => {
     total.value = resp.data.total;
   } else {
     Message.error(`加载失败，${resp.message}`);
-  }
-};
-const showColor = (difficulty: string) => {
-  if (difficulty === "简单") {
-    return "green";
-  } else if (difficulty === "中等") {
-    return "orange";
-  } else if (difficulty === "困难") {
-    return "red";
   }
 };
 watchEffect(() => {

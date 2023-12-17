@@ -3,9 +3,5 @@
 /* tslint:disable */
 /* eslint-disable */
 
-export type JudgeResult = {
-    correctRate?: number;
-    message?: string;
-    type?: string;
+export type ISqlSegment = {
 };
-

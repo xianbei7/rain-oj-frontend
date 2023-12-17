@@ -20,14 +20,8 @@
       </div>
     </a-col>
     <a-col flex="80px">
-      <a-dropdown v-if="userInfo.userName" trigger="click">
-        <a-avatar
-          :size="40"
-          :style="{
-            backgroundColor: '#4080ff',
-            cursor: 'pointer',
-          }"
-        >
+      <a-dropdown v-if="userInfo.id" trigger="click">
+        <a-avatar :size="40" class="avatar">
           {{ userInfo.userName }}
         </a-avatar>
         <template #content>
@@ -67,6 +61,7 @@ import { Message } from "@arco-design/web-vue";
 import UpdateUserModal from "@/components/UpdateUserModal.vue";
 
 const userInfo = useUserInfo();
+const router = useRouter();
 const visible = ref(false);
 const visibleRoutes = computed(() => {
   return routes.filter((item, index) => {
@@ -79,7 +74,6 @@ const visibleRoutes = computed(() => {
 
 // 默认主页
 const selectKeys = ref(["/"]);
-const router = useRouter();
 
 // 路由跳转后，更新对应的选择菜单项
 router.afterEach((to, from, failure) => {
@@ -100,9 +94,9 @@ const toUserLogin = () => {
   router.push({ path: "/user/login" });
 };
 const toUserInfo = () => {
-  if (userInfo.userName) {
+  if (userInfo.id) {
     router.push({
-      path: "/user/info/1726913181595181058",
+      path: `/user/info/${userInfo.id}`,
     });
   } else {
     Message.error("尚未登录！");
@@ -110,7 +104,7 @@ const toUserInfo = () => {
   }
 };
 const handleSetting = () => {
-  if (userInfo.userName) {
+  if (userInfo.id) {
     visible.value = true;
   } else {
     Message.error("尚未登录！");
@@ -120,7 +114,7 @@ const handleSetting = () => {
   }
 };
 const handleLogout = async () => {
-  if (userInfo.userName) {
+  if (userInfo.id) {
     const resp = await UserControllerService.userLogoutUsingPost();
     if (resp.code === 0) {
       Message.success("退出成功，欢迎再来！");
@@ -136,7 +130,11 @@ const handleLogout = async () => {
 <style scoped>
 #globalHeader {
   height: 70px;
-  border-bottom: 1px solid #eee;
+}
+
+.avatar {
+  background-color: #4080ff;
+  cursor: pointer;
 }
 
 .title {

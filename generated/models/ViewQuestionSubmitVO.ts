@@ -5,13 +5,13 @@
 
 import type { JudgeResult } from './JudgeResult';
 
-export type QuestionSubmitVO = {
+export type ViewQuestionSubmitVO = {
+    code?: string;
     createTime?: string;
+    executeMemory?: number;
+    executeTime?: number;
     id?: number;
     judgeResult?: JudgeResult;
     language?: string;
-    questionId?: number;
-    questionNumber?: number;
-    questionTitle?: string;
     status?: string;
 };

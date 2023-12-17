@@ -3,17 +3,17 @@
 /* tslint:disable */
 /* eslint-disable */
 
+import type { DetailedQuestionSubmitVO } from './DetailedQuestionSubmitVO';
 import type { OrderItem } from './OrderItem';
-import type { User } from './User';
 
-export type Page_User_ = {
+export type Page_DetailedQuestionSubmitVO_ = {
     countId?: string;
     current?: number;
     maxLimit?: number;
     optimizeCountSql?: boolean;
     orders?: Array<OrderItem>;
     pages?: number;
-    records?: Array<User>;
+    records?: Array<DetailedQuestionSubmitVO>;
     searchCount?: boolean;
     size?: number;
     total?: number;

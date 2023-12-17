@@ -29,7 +29,7 @@ export const routes: Array<RouteRecordRaw> = [
         component: () => import("../views/user/UserRegisterView.vue"),
       },
       {
-        path: "/user/info/:id",
+        path: "/user/info/:userId",
         name: "用户信息",
         component: () => import("../views/user/UserInfoView.vue"),
         props: true,
@@ -80,6 +80,19 @@ export const routes: Array<RouteRecordRaw> = [
     component: () => import("../views/question/ManageQuestionView.vue"),
     meta: {
       permissions: PERMISSIONS_ENUM.ADMIN,
+    },
+  },
+  {
+    path: "/question/submit/list",
+    name: "提交记录",
+    component: () => import("../views/question/QuestionSubmitListView.vue"),
+  },
+  {
+    path: "/test",
+    name: "测试",
+    component: () => import("../views/TestView.vue"),
+    meta: {
+      hideInMenu: true,
     },
   },
   {

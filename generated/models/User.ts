@@ -11,6 +11,7 @@ export type User = {
     userAccount?: string;
     userAvatar?: string;
     userName?: string;
+    userNumber?: string;
     userPassword?: string;
     userProfile?: string;
     userRole?: string;

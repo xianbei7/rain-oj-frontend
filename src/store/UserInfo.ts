@@ -5,6 +5,7 @@ import { UserControllerService } from "../../generated";
 export const useUserInfo = defineStore("userInfo", {
   state: () => {
     return {
+      id: "",
       userName: "",
       userRole: "",
       userAvatar: "",

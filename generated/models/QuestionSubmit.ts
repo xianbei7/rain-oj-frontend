@@ -3,15 +3,15 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import type { JudgeResult } from './JudgeResult';
-
-export type QuestionSubmitVO = {
+export type QuestionSubmit = {
+    code?: string;
     createTime?: string;
     id?: number;
-    judgeResult?: JudgeResult;
+    judgeInfo?: string;
+    judgeResult?: string;
     language?: string;
     questionId?: number;
-    questionNumber?: number;
-    questionTitle?: string;
-    status?: string;
+    status?: number;
+    updateTime?: string;
+    userId?: number;
 };

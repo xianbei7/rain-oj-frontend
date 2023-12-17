@@ -38,6 +38,11 @@
   right: 0;
   text-align: center;
 }
+
+.avatar {
+  background-color: #4080ff;
+  cursor: pointer;
+}
 </style>
 <script setup lang="ts">
 import GlobalHeader from "@/components/GlobalHeader.vue";
